@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, Db } = require("mongodb");
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -9,7 +9,7 @@ const app = express();
 // middlewares
 app.use(
   cors({
-    origin: ["https://localhost:5000"],
+    origin: ["http://localhost:5173"],
   })
 );
 app.use(express.json());
@@ -28,6 +28,21 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const menuCollection = client.db("bistroDB").collection("menu");
+    const reviewCollection = client.db("bistroDB").collection("review");
+
+    // get all the menu data
+    app.get("/menu", async (req, res) => {
+      const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+
+    // get all review data
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
